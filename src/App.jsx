@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import POSSystem from "./POSSystem"; 
-// import ItemManagement from "./ItemManagement"; // ItemManagement පිටුව import කර ඇත
+import ItemManagement from "./ItemManagement"; // ItemManagement පිටුව import කර ඇත
 import "./POSSystem.css"; 
 
 // මුලින් තිබූ ආදර්ශ භාණ්ඩ ලැයිස්තුව (Central Products State)
