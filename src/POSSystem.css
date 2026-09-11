@@ -47,16 +47,46 @@ input[type=number] {
 }
 
 /* Print කිරීම සඳහා ඇති CSS */
+/* Print කිරීම සඳහා ඇති CSS (Thermal Printer 80mm සඳහා ප්‍රශස්ත කර ඇත) */
 @media print {
-  body * { visibility: hidden; }
-  #pos-bill-print, #pos-bill-print * { visibility: visible; }
+  body * { 
+    visibility: hidden; 
+  }
+  #pos-bill-print, #pos-bill-print * { 
+    visibility: visible; 
+    color: #000 !important; /* Print වෙද්දී අකුරු පැහැදිලිව කළු පාටින් පෙන්වීමට */
+  }
   #pos-bill-print { 
     position: absolute; 
-    top: 0; 
     left: 0; 
-    width: 320px; 
+    top: 0; 
+    width: 320px; /* Thermal Printer (80mm) එකක සම්මත පළල */
+    padding: 10px !important;
+    margin: 0;
     border: none !important; 
     box-shadow: none !important; 
+    border-radius: 0 !important;
+    background: transparent !important;
   }
-  .no-print { display: none !important; }
+  
+  /* Print වෙද්දී අනවශ්‍ය බොත්තම් සැඟවීම */
+  .no-print { 
+    display: none !important; 
+  }
+
+  /* Print වෙද්දී Scrollbar ඉවත් කර මුළු ලැයිස්තුවම දිග හැර පෙන්වීම */
+  .print-expand {
+    max-height: none !important;
+    overflow: visible !important;
+  }
+  
+  /* මුදල් ඇතුළත් කරන Input Box එක Print වෙද්දී සාමාන්‍ය අකුරු වගේ පෙන්වීම */
+  #pos-bill-print input {
+    border: none !important;
+    background: transparent !important;
+    padding: 0 !important;
+    outline: none !important;
+    box-shadow: none !important;
+    color: #000 !important;
+  }
 }
