@@ -1,0 +1,62 @@
+/* Number Input වල ඊතල (spinners) ඉවත් කිරීම සඳහා */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
+/* අලංකාර Scrollbar එකක් සැකසීම */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #F0F4F8; 
+}
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1; 
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8; 
+}
+
+/* Animations සහ Hover Effects */
+.item-card {
+  transition: all 0.3s ease;
+}
+.item-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+}
+
+.pay-btn {
+  transition: all 0.3s ease;
+  background-size: 200% auto;
+}
+.pay-btn:hover {
+  background-position: right center;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px -5px rgba(79, 70, 229, 0.4);
+}
+.pay-btn:disabled {
+  transform: none;
+  box-shadow: none;
+}
+
+/* Print කිරීම සඳහා ඇති CSS */
+@media print {
+  body * { visibility: hidden; }
+  #pos-bill-print, #pos-bill-print * { visibility: visible; }
+  #pos-bill-print { 
+    position: absolute; 
+    top: 0; 
+    left: 0; 
+    width: 320px; 
+    border: none !important; 
+    box-shadow: none !important; 
+  }
+  .no-print { display: none !important; }
+}

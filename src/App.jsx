@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import "./POSSystem.css"; 
 
 const PRODUCTS = [
   { id: 1, name: "Basmati Rice 1kg", category: "Groceries", price: 420 },
@@ -20,6 +21,80 @@ const CURRENCY = (n) =>
 
 const round2 = (n) => Math.round(n * 100) / 100;
 
+// Button Styles
+const btnBaseStyle = {
+  width: "32px", height: "32px", fontSize: "18px", lineHeight: "1",
+  borderRadius: "8px", border: "none", cursor: "pointer", 
+  display: "flex", alignItems: "center", justifyContent: "center",
+  transition: "all 0.2s"
+};
+
+// ==========================================
+// 1. වෙන් කරන ලද ItemRow Component එක
+// ==========================================
+const ItemRow = ({ product, inBill, entry, changeQty, setQty, setDiscount }) => {
+  const active = entry.qty > 0;
+  const lineTotalValue = round2(product.price * entry.qty * (1 - (entry.discountPercent || 0) / 100));
+
+  return (
+    <div
+      className="item-card"
+      style={{
+        display: "flex", flexDirection: "column", gap: "10px", padding: "16px",
+        background: active ? "#EEF2FF" : "#FFFFFF", // Active නම් ළා නිල් පසුබිමක්
+        border: active ? "2px solid #4F46E5" : "1px solid #E2E8F0", 
+        borderRadius: "12px",
+      }}
+    >
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "16px" }}>
+        <div style={{ minWidth: 0 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <span style={{ fontSize: "16px", fontWeight: 600, color: "#1E293B", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+              {product.name}
+            </span>
+            {inBill && (
+              <span style={{ fontSize: "11px", fontWeight: 700, color: "#FFFFFF", background: "#10B981", padding: "3px 8px", borderRadius: "12px", flexShrink: 0, textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                In Bill
+              </span>
+            )}
+          </div>
+          <div style={{ fontSize: "13px", color: "#64748B", marginTop: "4px", fontWeight: 500 }}>
+            <span style={{ color: "#3B82F6" }}>{product.category}</span> &middot; <span style={{ fontFamily: "'Courier New', monospace", fontWeight: 600, color: "#0F172A" }}>{CURRENCY(product.price)}</span>
+          </div>
+        </div>
+
+        <div style={{ display: "flex", alignItems: "center", gap: "8px", flexShrink: 0 }}>
+          <button onClick={() => changeQty(product, -1)} style={{ ...btnBaseStyle, background: "#F1F5F9", color: "#475569" }}>&minus;</button>
+          <input
+            type="number" min="0" step="0.01" value={entry.qty === 0 ? "" : entry.qty} placeholder="0"
+            onChange={(e) => setQty(product, e.target.value)}
+            style={{ width: "50px", textAlign: "center", padding: "8px 4px", fontSize: "15px", fontWeight: 600, fontFamily: "'Courier New', monospace", border: "1px solid #CBD5E1", borderRadius: "8px", color: "#1E293B", outline: "none", background: "#FFFFFF" }}
+          />
+          <button onClick={() => changeQty(product, 1)} style={{ ...btnBaseStyle, background: "#4F46E5", color: "#FFFFFF", boxShadow: "0 2px 4px rgba(79,70,229,0.3)" }}>+</button>
+        </div>
+      </div>
+
+      {active && (
+        <div style={{ display: "flex", alignItems: "center", gap: "8px", borderTop: "1px dashed #CBD5E1", paddingTop: "12px", marginTop: "4px" }}>
+          <span style={{ fontSize: "13px", fontWeight: 600, color: "#F59E0B" }}>Discount</span>
+          <input
+            type="number" min="0" max="100" step="1" value={entry.discountPercent || ""} placeholder="0"
+            onChange={(e) => setDiscount(product, e.target.value)}
+            style={{ width: "48px", textAlign: "center", padding: "6px 4px", fontSize: "14px", fontWeight: 700, fontFamily: "'Courier New', monospace", border: "1px solid #FCD34D", borderRadius: "6px", color: "#D97706", outline: "none", background: "#FFFBEB" }}
+          />
+          <span style={{ fontSize: "13px", fontWeight: 600, color: "#F59E0B" }}>%</span>
+          <span style={{ fontSize: "14px", fontWeight: 700, color: "#10B981", marginLeft: "auto", fontFamily: "'Courier New', monospace" }}>
+            = {CURRENCY(lineTotalValue)}
+          </span>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// ==========================================
+// 2. ප්‍රධාන POS Component එක
+// ==========================================
 export default function POSSystem() {
   const [query, setQuery] = useState("");
   const [cart, setCart] = useState({});
@@ -28,16 +103,10 @@ export default function POSSystem() {
   const searchResults = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return [];
-    return PRODUCTS.filter(
-      (p) => p.name.toLowerCase().includes(q) || p.category.toLowerCase().includes(q)
-    );
+    return PRODUCTS.filter((p) => p.name.toLowerCase().includes(q) || p.category.toLowerCase().includes(q));
   }, [query]);
 
-  const cartItems = useMemo(
-    () => Object.values(cart).sort((a, b) => a.product.id - b.product.id),
-    [cart]
-  );
-
+  const cartItems = useMemo(() => Object.values(cart).sort((a, b) => a.product.id - b.product.id), [cart]);
   const cartIds = new Set(cartItems.map((l) => l.product.id));
   const extraResults = searchResults.filter((p) => !cartIds.has(p.id));
 
@@ -70,9 +139,7 @@ export default function POSSystem() {
     });
   };
 
-  const lineTotal = (line) =>
-    round2(line.product.price * line.qty * (1 - (line.discountPercent || 0) / 100));
-
+  const lineTotal = (line) => round2(line.product.price * line.qty * (1 - (line.discountPercent || 0) / 100));
   const total = round2(cartItems.reduce((sum, l) => sum + lineTotal(l), 0));
   const itemCount = cartItems.reduce((sum, l) => sum + l.qty, 0);
   const balance = round2((amountPaid || 0) - total);
@@ -82,383 +149,108 @@ export default function POSSystem() {
     window.print();
   };
 
-  const ItemRow = ({ product, inBill }) => {
-    const entry = getEntry(product);
-    const active = entry.qty > 0;
-    return (
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: "10px",
-          padding: "14px 16px",
-          background: "#FFFFFF",
-          border: active ? "1.5px solid #2F6F4F" : "1.5px solid #E4E0D8",
-          borderRadius: "6px",
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "16px" }}>
-          <div style={{ minWidth: 0 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              <span
-                style={{
-                  fontSize: "15px",
-                  fontWeight: 500,
-                  color: "#1E2A28",
-                  whiteSpace: "nowrap",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                }}
-              >
-                {product.name}
-              </span>
-              {inBill && (
-                <span
-                  style={{
-                    fontSize: "10.5px",
-                    fontWeight: 600,
-                    color: "#2F6F4F",
-                    background: "#E7F0EA",
-                    padding: "2px 7px",
-                    borderRadius: "10px",
-                    flexShrink: 0,
-                  }}
-                >
-                  In bill
-                </span>
-              )}
-            </div>
-            <div style={{ fontSize: "12px", color: "#7A756A", marginTop: "2px" }}>
-              {product.category} &middot;{" "}
-              <span style={{ fontFamily: "'Courier New', monospace" }}>
-                {CURRENCY(product.price)}
-              </span>
-            </div>
-          </div>
-
-          <div style={{ display: "flex", alignItems: "center", gap: "8px", flexShrink: 0 }}>
-            <button onClick={() => changeQty(product, -1)} style={qtyBtnStyle} aria-label="Decrease quantity">
-              &minus;
-            </button>
-            <input
-              type="number"
-              min="0"
-              step="0.01"
-              value={entry.qty === 0 ? "" : entry.qty}
-              placeholder="0"
-              onChange={(e) => setQty(product, e.target.value)}
-              style={{
-                width: "56px",
-                textAlign: "center",
-                padding: "8px 4px",
-                fontSize: "14px",
-                fontFamily: "'Courier New', monospace",
-                border: "1.5px solid #DDD6C7",
-                borderRadius: "4px",
-                color: "#1E2A28",
-                outline: "none",
-              }}
-            />
-            <button
-              onClick={() => changeQty(product, 1)}
-              style={{ ...qtyBtnStyle, background: "#2F6F4F", color: "#FFFFFF", border: "1.5px solid #2F6F4F" }}
-              aria-label="Increase quantity"
-            >
-              +
-            </button>
-          </div>
-        </div>
-
-        {active && (
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-              borderTop: "1px dashed #E4E0D8",
-              paddingTop: "10px",
-            }}
-          >
-            <span style={{ fontSize: "12px", color: "#7A756A" }}>Discount</span>
-            <input
-              type="number"
-              min="0"
-              max="100"
-              step="1"
-              value={entry.discountPercent || ""}
-              placeholder="0"
-              onChange={(e) => setDiscount(product, e.target.value)}
-              style={{
-                width: "48px",
-                textAlign: "center",
-                padding: "6px 4px",
-                fontSize: "13px",
-                fontFamily: "'Courier New', monospace",
-                border: "1.5px solid #DDD6C7",
-                borderRadius: "4px",
-                color: "#E29234",
-                outline: "none",
-              }}
-            />
-            <span style={{ fontSize: "12px", color: "#7A756A" }}>%</span>
-            <span style={{ fontSize: "12px", color: "#A6A196", marginLeft: "auto", fontFamily: "'Courier New', monospace" }}>
-              = {CURRENCY(lineTotal(entry))}
-            </span>
-          </div>
-        )}
-      </div>
-    );
-  };
-
   return (
-    <div
-      style={{
-        fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
-        background: "#EFE9DA",
-        minHeight: "100vh",
-        padding: "28px",
-        boxSizing: "border-box",
-      }}
-    >
-      <style>{`
-        @media print {
-          body * { visibility: hidden; }
-          #pos-bill-print, #pos-bill-print * { visibility: visible; }
-          #pos-bill-print { position: absolute; top: 0; left: 0; width: 320px; border: none !important; box-shadow: none !important; }
-          .no-print { display: none !important; }
-        }
-      `}</style>
-
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "1.6fr 1fr",
-          gap: "24px",
-          maxWidth: "1180px",
-          margin: "0 auto",
-          alignItems: "start",
-        }}
-      >
-        {/* LEFT: search + results */}
+    <div style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", background: "#F4F7FE", minHeight: "100vh", padding: "30px", boxSizing: "border-box" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1.6fr 1fr", gap: "30px", maxWidth: "1280px", margin: "0 auto", alignItems: "start" }}>
+        
+        {/* වම් පස: Search & Results */}
         <div className="no-print">
-          <div style={{ marginBottom: "18px" }}>
-            <h1 style={{ fontSize: "22px", fontWeight: 600, color: "#1E2A28", margin: "0 0 2px 0", letterSpacing: "-0.01em" }}>
-              Counter
-            </h1>
-            <p style={{ fontSize: "13px", color: "#7A756A", margin: 0 }}>
-              Search for an item to add it to the bill
-            </p>
+          <div style={{ marginBottom: "24px" }}>
+            <h1 style={{ fontSize: "28px", fontWeight: 800, color: "#1E293B", margin: "0 0 4px 0", letterSpacing: "-0.02em" }}>POS Counter</h1>
+            <p style={{ fontSize: "14px", color: "#64748B", margin: 0, fontWeight: 500 }}>Search and select items to build your bill effortlessly.</p>
           </div>
 
-          <div style={{ position: "relative", marginBottom: "20px" }}>
+          <div style={{ position: "relative", marginBottom: "24px", boxShadow: "0 4px 20px rgba(0,0,0,0.04)", borderRadius: "12px" }}>
             <input
-              type="text"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search by item name or category..."
-              style={{
-                width: "100%",
-                boxSizing: "border-box",
-                padding: "14px 16px",
-                fontSize: "15px",
-                border: "1.5px solid #DDD6C7",
-                borderRadius: "6px",
-                background: "#FFFFFF",
-                color: "#1E2A28",
-                outline: "none",
-              }}
-              onFocus={(e) => (e.target.style.borderColor = "#2F6F4F")}
-              onBlur={(e) => (e.target.style.borderColor = "#DDD6C7")}
+              type="text" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search by item name or category..."
+              style={{ width: "100%", boxSizing: "border-box", padding: "18px 20px", fontSize: "16px", fontWeight: 500, border: "2px solid #E2E8F0", borderRadius: "12px", background: "#FFFFFF", color: "#1E293B", outline: "none", transition: "border-color 0.3s" }}
+              onFocus={(e) => (e.target.style.borderColor = "#4F46E5")} onBlur={(e) => (e.target.style.borderColor = "#E2E8F0")}
             />
           </div>
 
           {cartItems.length === 0 && query.trim() === "" && (
-            <div style={{ padding: "40px 20px", textAlign: "center", color: "#A6A196", fontSize: "14px", border: "1.5px dashed #DDD6C7", borderRadius: "6px" }}>
-              Start typing to find items
+            <div style={{ padding: "50px 20px", textAlign: "center", color: "#94A3B8", fontSize: "15px", fontWeight: 500, background: "#FFFFFF", border: "2px dashed #CBD5E1", borderRadius: "12px" }}>
+              Start typing to find items...
             </div>
           )}
 
           {cartItems.length > 0 && (
-            <div style={{ marginBottom: query.trim() ? "22px" : "0" }}>
-              <div style={{ fontSize: "12px", fontWeight: 600, color: "#7A756A", marginBottom: "8px", textTransform: "uppercase", letterSpacing: "0.03em" }}>
-                In your bill
-              </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+            <div style={{ marginBottom: query.trim() ? "24px" : "0" }}>
+              <div style={{ fontSize: "13px", fontWeight: 700, color: "#4F46E5", marginBottom: "12px", textTransform: "uppercase", letterSpacing: "1px" }}>★ In Your Bill</div>
+              <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                 {cartItems.map((line) => (
-                  <ItemRow key={line.product.id} product={line.product} inBill />
+                  <ItemRow key={line.product.id} product={line.product} inBill={true} entry={line} changeQty={changeQty} setQty={setQty} setDiscount={setDiscount} />
                 ))}
               </div>
-            </div>
-          )}
-
-          {query.trim() !== "" && extraResults.length === 0 && searchResults.length === 0 && (
-            <div style={{ padding: "40px 20px", textAlign: "center", color: "#A6A196", fontSize: "14px", border: "1.5px dashed #DDD6C7", borderRadius: "6px" }}>
-              No items match "{query}"
             </div>
           )}
 
           {query.trim() !== "" && extraResults.length > 0 && (
             <div>
-              {cartItems.length > 0 && (
-                <div style={{ fontSize: "12px", fontWeight: 600, color: "#7A756A", marginBottom: "8px", textTransform: "uppercase", letterSpacing: "0.03em" }}>
-                  Search results
-                </div>
-              )}
-              <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+              {cartItems.length > 0 && <div style={{ fontSize: "13px", fontWeight: 700, color: "#64748B", marginBottom: "12px", textTransform: "uppercase", letterSpacing: "1px", marginTop: "24px" }}>Search Results</div>}
+              <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                 {extraResults.map((product) => (
-                  <ItemRow key={product.id} product={product} inBill={false} />
+                  <ItemRow key={product.id} product={product} inBill={false} entry={getEntry(product)} changeQty={changeQty} setQty={setQty} setDiscount={setDiscount} />
                 ))}
               </div>
             </div>
           )}
         </div>
 
-        {/* RIGHT: bill preview */}
-        <div
-          id="pos-bill-print"
-          style={{
-            background: "#FFFFFF",
-            border: "1.5px solid #DDD6C7",
-            borderRadius: "8px",
-            padding: "22px",
-            position: "sticky",
-            top: "28px",
-          }}
-        >
-          <div style={{ borderBottom: "1.5px dashed #DDD6C7", paddingBottom: "14px", marginBottom: "14px" }}>
-            <div style={{ fontSize: "16px", fontWeight: 600, color: "#1E2A28" }}>Bill</div>
-            <div style={{ fontSize: "12px", color: "#7A756A", marginTop: "2px" }}>
-              {itemCount} {itemCount === 1 ? "item" : "items"}
-            </div>
+        {/* දකුණු පස: Bill Preview */}
+        <div id="pos-bill-print" style={{ background: "#FFFFFF", border: "1px solid #E2E8F0", borderRadius: "16px", padding: "28px", position: "sticky", top: "30px", boxShadow: "0 10px 30px rgba(0,0,0,0.03)" }}>
+          <div style={{ borderBottom: "2px dashed #E2E8F0", paddingBottom: "16px", marginBottom: "16px" }}>
+            <div style={{ fontSize: "20px", fontWeight: 800, color: "#1E293B" }}>Current Bill</div>
+            <div style={{ fontSize: "13px", color: "#64748B", marginTop: "4px", fontWeight: 600 }}>{itemCount} {itemCount === 1 ? "Item" : "Items"} in cart</div>
           </div>
 
           {cartItems.length === 0 ? (
-            <div style={{ fontSize: "13px", color: "#A6A196", padding: "20px 0", textAlign: "center" }}>
-              No items added yet
-            </div>
+            <div style={{ fontSize: "14px", fontWeight: 500, color: "#94A3B8", padding: "40px 0", textAlign: "center" }}>Cart is empty</div>
           ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginBottom: "16px" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginBottom: "20px", maxHeight: "40vh", overflowY: "auto", paddingRight: "8px" }}>
               {cartItems.map((line) => {
                 const hasDiscount = (line.discountPercent || 0) > 0;
-                const unitPrice = line.product.price;
                 return (
-                  <div key={line.product.id} style={{ display: "flex", justifyContent: "space-between", gap: "10px" }}>
+                  <div key={line.product.id} style={{ display: "flex", justifyContent: "space-between", gap: "12px" }}>
                     <div style={{ minWidth: 0 }}>
-                      <div style={{ fontSize: "13.5px", color: "#1E2A28", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                        {line.product.name}
-                      </div>
-                      <div style={{ fontSize: "11.5px", color: "#A6A196", fontFamily: "'Courier New', monospace" }}>
-                        {line.qty} x{" "}
-                        {hasDiscount ? (
-                          <>
-                            <span style={{ textDecoration: "line-through" }}>{CURRENCY(unitPrice)}</span>{" "}
-                            <span style={{ color: "#E29234" }}>-{line.discountPercent}%</span>
-                          </>
-                        ) : (
-                          CURRENCY(unitPrice)
-                        )}
+                      <div style={{ fontSize: "14px", fontWeight: 600, color: "#1E293B", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{line.product.name}</div>
+                      <div style={{ fontSize: "12px", color: "#94A3B8", fontFamily: "'Courier New', monospace", fontWeight: 600, marginTop: "2px" }}>
+                        {line.qty} x {hasDiscount ? <><span style={{ textDecoration: "line-through" }}>{CURRENCY(line.product.price)}</span> <span style={{ color: "#F59E0B", marginLeft: "4px" }}>-{line.discountPercent}%</span></> : CURRENCY(line.product.price)}
                       </div>
                     </div>
-                    <div style={{ fontSize: "13.5px", fontFamily: "'Courier New', monospace", color: "#1E2A28", flexShrink: 0 }}>
-                      {CURRENCY(lineTotal(line))}
-                    </div>
+                    <div style={{ fontSize: "15px", fontWeight: 700, fontFamily: "'Courier New', monospace", color: "#1E293B", flexShrink: 0 }}>{CURRENCY(lineTotal(line))}</div>
                   </div>
                 );
               })}
             </div>
           )}
 
-          <div style={{ borderTop: "1.5px dashed #DDD6C7", paddingTop: "12px", display: "flex", flexDirection: "column", gap: "6px" }}>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                fontSize: "17px",
-                fontWeight: 600,
-                color: "#1E2A28",
-                paddingBottom: "10px",
-                borderBottom: "1.5px solid #E4E0D8",
-              }}
-            >
-              <span>Total</span>
-              <span style={{ fontFamily: "'Courier New', monospace" }}>{CURRENCY(total)}</span>
+          <div style={{ background: "#F8FAFC", borderRadius: "12px", padding: "16px", marginBottom: "20px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", fontSize: "20px", fontWeight: 800, color: "#1E293B", paddingBottom: "12px", borderBottom: "2px solid #E2E8F0" }}>
+              <span>Total</span> <span style={{ fontFamily: "'Courier New', monospace", color: "#10B981" }}>{CURRENCY(total)}</span>
             </div>
-
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "13px", color: "#7A756A", marginTop: "4px" }}>
-              <span>Amount paid (Rs.)</span>
-              <input
-                type="number"
-                min="0"
-                step="1"
-                value={amountPaid === 0 ? "" : amountPaid}
-                placeholder="0"
-                onChange={(e) => setAmountPaid(Math.max(0, parseFloat(e.target.value) || 0))}
-                style={{
-                  width: "100px",
-                  textAlign: "right",
-                  padding: "7px 8px",
-                  fontSize: "14px",
-                  fontFamily: "'Courier New', monospace",
-                  border: "1.5px solid #DDD6C7",
-                  borderRadius: "4px",
-                  color: "#1E2A28",
-                  outline: "none",
-                }}
-              />
-            </div>
-
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                fontSize: "15px",
-                fontWeight: 600,
-                color: balance < 0 ? "#C24E3A" : "#2F6F4F",
-                marginTop: "2px",
-              }}
-            >
-              <span>{balance < 0 ? "Balance due" : "Change to give"}</span>
-              <span style={{ fontFamily: "'Courier New', monospace" }}>{CURRENCY(Math.abs(balance))}</span>
+            
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "16px", padding: "12px 16px", background: "#FFFFFF", borderRadius: "10px", border: "1px solid #E2E8F0", boxShadow: "0 2px 5px rgba(0,0,0,0.02)" }}>
+            <span style={{ fontSize: "15px", fontWeight: 700, color: "#334155" }}>Amount Paid (Rs.)</span>
+            <input 
+              type="number" min="0" step="1" value={amountPaid === 0 ? "" : amountPaid} placeholder="0.00" 
+              onChange={(e) => setAmountPaid(Math.max(0, parseFloat(e.target.value) || 0))} 
+              style={{ width: "80px", textAlign: "right", padding: "10px 14px", fontSize: "18px", fontWeight: 800, fontFamily: "'Courier New', monospace", border: "2px solid #94A3B8", borderRadius: "8px", color: "#0F172A", backgroundColor: "#F8FAFC", outline: "none", transition: "all 0.3s ease" }} 
+              onFocus={(e) => { e.target.style.borderColor = "#4F46E5"; e.target.style.backgroundColor = "#FFFFFF"; e.target.style.boxShadow = "0 0 0 4px rgba(79, 70, 229, 0.15)"; }} 
+              onBlur={(e) => { e.target.style.borderColor = "#94A3B8"; e.target.style.backgroundColor = "#F8FAFC"; e.target.style.boxShadow = "none"; }} 
+            />
+          </div>
+            
+            <div style={{ display: "flex", justifyContent: "space-between", fontSize: "16px", fontWeight: 800, color: balance < 0 ? "#EF4444" : "#4F46E5", marginTop: "12px" }}>
+              <span>{balance < 0 ? "Balance Due" : "Change to Give"}</span> <span style={{ fontFamily: "'Courier New', monospace" }}>{CURRENCY(Math.abs(balance))}</span>
             </div>
           </div>
 
-          <button
-            onClick={handlePrint}
-            disabled={cartItems.length === 0}
-            className="no-print"
-            style={{
-              width: "100%",
-              marginTop: "18px",
-              padding: "14px",
-              fontSize: "15px",
-              fontWeight: 600,
-              color: "#FFFFFF",
-              background: cartItems.length === 0 ? "#B4C9BE" : "#2F6F4F",
-              border: "none",
-              borderRadius: "6px",
-              cursor: cartItems.length === 0 ? "not-allowed" : "pointer",
-              transition: "background 0.15s ease",
-            }}
-          >
-            Print bill
+          <button onClick={handlePrint} disabled={cartItems.length === 0} className="pay-btn no-print" style={{ width: "100%", padding: "16px", fontSize: "16px", fontWeight: 700, color: "#FFFFFF", background: cartItems.length === 0 ? "#CBD5E1" : "linear-gradient(to right, #4F46E5 0%, #3B82F6 51%, #4F46E5 100%)", border: "none", borderRadius: "10px", cursor: cartItems.length === 0 ? "not-allowed" : "pointer" }}>
+            PRINT BILL & CHECKOUT
           </button>
         </div>
       </div>
     </div>
   );
 }
-
-const qtyBtnStyle = {
-  width: "30px",
-  height: "30px",
-  fontSize: "16px",
-  lineHeight: "1",
-  border: "1.5px solid #DDD6C7",
-  borderRadius: "4px",
-  background: "#FFFFFF",
-  color: "#1E2A28",
-  cursor: "pointer",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-};
