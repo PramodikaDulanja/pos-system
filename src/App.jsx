@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import POSSystem from "./POSSystem"; 
 import ItemManagement from "./ItemManagement"; 
-import CategoryBrandManager from "./CategoryBrandManager"; // වෙනම සෑදූ ෆයිල් එක import කර ඇත
+import CategoryManager from "./CategoryManager"; 
+import CompanyManager from "./CompanyManager"; 
 import "./POSSystem.css"; 
 
 const INITIAL_PRODUCTS = [
@@ -21,7 +22,7 @@ const INITIAL_CATEGORIES = ["Groceries", "Vegetables", "Beverages", "Bakery", "D
 const INITIAL_COMPANIES = ["Araliya", "Marina", "Local", "Dilmah", "Anchor", "CBL", "Farm", "Crysbro", "Samaposha", "General"];
 
 // ==========================================
-// 1. Dashboard Component එක
+// 1. Dashboard Component
 // ==========================================
 function Dashboard({ setActiveView, items, categories, companies }) {
   const totalStockValue = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
@@ -58,41 +59,51 @@ function Dashboard({ setActiveView, items, categories, companies }) {
           
           <div 
             onClick={() => setActiveView("pos")}
-            style={{ background: "linear-gradient(135deg, #4F46E5 0%, #3B82F6 100%)", padding: "30px", borderRadius: "16px", color: "#FFFFFF", cursor: "pointer", boxShadow: "0 10px 20px rgba(79,70,229,0.2)", transition: "transform 0.2s" }}
+            style={{ background: "linear-gradient(135deg, #4F46E5 0%, #3B82F6 100%)", padding: "26px", borderRadius: "16px", color: "#FFFFFF", cursor: "pointer", boxShadow: "0 10px 20px rgba(79,70,229,0.2)", transition: "transform 0.2s" }}
             onMouseEnter={(e) => e.currentTarget.style.transform = "translateY(-4px)"}
             onMouseLeave={(e) => e.currentTarget.style.transform = "translateY(0)"}
           >
-            <div style={{ fontSize: "24px", fontWeight: 800, marginBottom: "8px" }}>🛒 POS Counter & Billing</div>
+            <div style={{ fontSize: "22px", fontWeight: 800, marginBottom: "6px" }}>🛒 POS Counter & Billing</div>
             <p style={{ fontSize: "14px", opacity: 0.9, margin: 0 }}>Open sales counter, search items, apply discounts, and print bills.</p>
           </div>
 
           <div 
             onClick={() => setActiveView("items")}
-            style={{ background: "linear-gradient(135deg, #10B981 0%, #059669 100%)", padding: "30px", borderRadius: "16px", color: "#FFFFFF", cursor: "pointer", boxShadow: "0 10px 20px rgba(16,185,129,0.2)", transition: "transform 0.2s" }}
+            style={{ background: "linear-gradient(135deg, #10B981 0%, #059669 100%)", padding: "26px", borderRadius: "16px", color: "#FFFFFF", cursor: "pointer", boxShadow: "0 10px 20px rgba(16,185,129,0.2)", transition: "transform 0.2s" }}
             onMouseEnter={(e) => e.currentTarget.style.transform = "translateY(-4px)"}
             onMouseLeave={(e) => e.currentTarget.style.transform = "translateY(0)"}
           >
-            <div style={{ fontSize: "24px", fontWeight: 800, marginBottom: "8px" }}>📦 Item Management</div>
+            <div style={{ fontSize: "22px", fontWeight: 800, marginBottom: "6px" }}>📦 Item Management</div>
             <p style={{ fontSize: "14px", opacity: 0.9, margin: 0 }}>Add new items, update prices, manage categories and stock levels.</p>
           </div>
 
           <div 
-            onClick={() => setActiveView("categories-brands")}
-            style={{ background: "linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%)", padding: "30px", borderRadius: "16px", color: "#FFFFFF", cursor: "pointer", boxShadow: "0 10px 20px rgba(139,92,246,0.2)", transition: "transform 0.2s" }}
+            onClick={() => setActiveView("categories")}
+            style={{ background: "linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%)", padding: "26px", borderRadius: "16px", color: "#FFFFFF", cursor: "pointer", boxShadow: "0 10px 20px rgba(139,92,246,0.2)", transition: "transform 0.2s" }}
             onMouseEnter={(e) => e.currentTarget.style.transform = "translateY(-4px)"}
             onMouseLeave={(e) => e.currentTarget.style.transform = "translateY(0)"}
           >
-            <div style={{ fontSize: "24px", fontWeight: 800, marginBottom: "8px" }}>🏷️ Categories & Brands</div>
-            <p style={{ fontSize: "14px", opacity: 0.9, margin: 0 }}>Add new item categories and manage company/brand names.</p>
+            <div style={{ fontSize: "22px", fontWeight: 800, marginBottom: "6px" }}>📂 Category Management</div>
+            <p style={{ fontSize: "14px", opacity: 0.9, margin: 0 }}>Manage store categories, view IDs, edit or delete categories.</p>
+          </div>
+
+          <div 
+            onClick={() => setActiveView("companies")}
+            style={{ background: "linear-gradient(135deg, #0EA5E9 0%, #0284C7 100%)", padding: "26px", borderRadius: "16px", color: "#FFFFFF", cursor: "pointer", boxShadow: "0 10px 20px rgba(14,165,233,0.2)", transition: "transform 0.2s" }}
+            onMouseEnter={(e) => e.currentTarget.style.transform = "translateY(-4px)"}
+            onMouseLeave={(e) => e.currentTarget.style.transform = "translateY(0)"}
+          >
+            <div style={{ fontSize: "22px", fontWeight: 800, marginBottom: "6px" }}>🏢 Brand & Company Management</div>
+            <p style={{ fontSize: "14px", opacity: 0.9, margin: 0 }}>Manage brands/companies, view IDs, edit or delete company records.</p>
           </div>
 
           <div 
             onClick={() => setActiveView("transactions")}
-            style={{ background: "linear-gradient(135deg, #F59E0B 0%, #D97706 100%)", padding: "30px", borderRadius: "16px", color: "#FFFFFF", cursor: "pointer", boxShadow: "0 10px 20px rgba(245,158,11,0.2)", transition: "transform 0.2s" }}
+            style={{ background: "linear-gradient(135deg, #F59E0B 0%, #D97706 100%)", padding: "26px", borderRadius: "16px", color: "#FFFFFF", cursor: "pointer", boxShadow: "0 10px 20px rgba(245,158,11,0.2)", transition: "transform 0.2s" }}
             onMouseEnter={(e) => e.currentTarget.style.transform = "translateY(-4px)"}
             onMouseLeave={(e) => e.currentTarget.style.transform = "translateY(0)"}
           >
-            <div style={{ fontSize: "24px", fontWeight: 800, marginBottom: "8px" }}>📊 Transactions & History</div>
+            <div style={{ fontSize: "22px", fontWeight: 800, marginBottom: "6px" }}>📊 Transactions & History</div>
             <p style={{ fontSize: "14px", opacity: 0.9, margin: 0 }}>View past bills, analyze sales reports, and track transaction logs.</p>
           </div>
 
@@ -114,7 +125,7 @@ function Transactions({ setActiveView }) {
 }
 
 // ==========================================
-// 2. ප්‍රධාන App Component (Router)
+// 2. Main App Component (Router)
 // ==========================================
 export default function App() {
   const [activeView, setActiveView] = useState("dashboard"); 
@@ -157,11 +168,17 @@ export default function App() {
         />
       )}
 
-      {activeView === "categories-brands" && (
-        <CategoryBrandManager 
+      {activeView === "categories" && (
+        <CategoryManager 
           setActiveView={setActiveView} 
           categories={categories} 
           setCategories={setCategories} 
+        />
+      )}
+
+      {activeView === "companies" && (
+        <CompanyManager 
+          setActiveView={setActiveView} 
           companies={companies} 
           setCompanies={setCompanies} 
         />
