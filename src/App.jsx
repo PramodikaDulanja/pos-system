@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import POSSystem from "./POSSystem"; 
-import ItemManagement from "./ItemManagement"; // ItemManagement පිටුව import කර ඇත
+import ItemManagement from "./ItemManagement"; 
+import CategoryBrandManager from "./CategoryBrandManager"; // වෙනම සෑදූ ෆයිල් එක import කර ඇත
 import "./POSSystem.css"; 
 
-// මුලින් තිබූ ආදර්ශ භාණ්ඩ ලැයිස්තුව (Central Products State)
 const INITIAL_PRODUCTS = [
   { id: 1, name: "Basmati Rice 1kg", category: "Groceries", company: "Araliya", buyingPrice: 380, price: 420, barcode: "1001", quantity: 50 },
   { id: 2, name: "Coconut Oil 750ml", category: "Groceries", company: "Marina", buyingPrice: 620, price: 690, barcode: "1002", quantity: 30 },
@@ -17,10 +17,13 @@ const INITIAL_PRODUCTS = [
   { id: 10, name: "Dhal 500g", category: "Groceries", company: "Samaposha", buyingPrice: 200, price: 240, barcode: "1010", quantity: 45 },
 ];
 
+const INITIAL_CATEGORIES = ["Groceries", "Vegetables", "Beverages", "Bakery", "Dairy", "Meat"];
+const INITIAL_COMPANIES = ["Araliya", "Marina", "Local", "Dilmah", "Anchor", "CBL", "Farm", "Crysbro", "Samaposha", "General"];
+
 // ==========================================
-// 1. Dashboard Component එක (ප්‍රධාන පිටුව)
+// 1. Dashboard Component එක
 // ==========================================
-function Dashboard({ setActiveView, items }) {
+function Dashboard({ setActiveView, items, categories, companies }) {
   const totalStockValue = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
   return (
@@ -44,8 +47,8 @@ function Dashboard({ setActiveView, items }) {
             <div style={{ fontSize: "28px", fontWeight: 800, color: "#4F46E5", marginTop: "8px", fontFamily: "'Courier New', monospace" }}>Rs. {totalStockValue.toLocaleString()}</div>
           </div>
           <div style={{ background: "#FFFFFF", padding: "24px", borderRadius: "16px", border: "1px solid #E2E8F0", boxShadow: "0 4px 6px -1px rgba(0,0,0,0.02)" }}>
-            <div style={{ fontSize: "14px", fontWeight: 600, color: "#64748B" }}>System Status</div>
-            <div style={{ fontSize: "20px", fontWeight: 800, color: "#F59E0B", marginTop: "12px" }}>Active & Online</div>
+            <div style={{ fontSize: "14px", fontWeight: 600, color: "#64748B" }}>Categories & Brands</div>
+            <div style={{ fontSize: "20px", fontWeight: 800, color: "#F59E0B", marginTop: "12px" }}>{categories.length} Cats / {companies.length} Brands</div>
           </div>
         </div>
 
@@ -74,6 +77,16 @@ function Dashboard({ setActiveView, items }) {
           </div>
 
           <div 
+            onClick={() => setActiveView("categories-brands")}
+            style={{ background: "linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%)", padding: "30px", borderRadius: "16px", color: "#FFFFFF", cursor: "pointer", boxShadow: "0 10px 20px rgba(139,92,246,0.2)", transition: "transform 0.2s" }}
+            onMouseEnter={(e) => e.currentTarget.style.transform = "translateY(-4px)"}
+            onMouseLeave={(e) => e.currentTarget.style.transform = "translateY(0)"}
+          >
+            <div style={{ fontSize: "24px", fontWeight: 800, marginBottom: "8px" }}>🏷️ Categories & Brands</div>
+            <p style={{ fontSize: "14px", opacity: 0.9, margin: 0 }}>Add new item categories and manage company/brand names.</p>
+          </div>
+
+          <div 
             onClick={() => setActiveView("transactions")}
             style={{ background: "linear-gradient(135deg, #F59E0B 0%, #D97706 100%)", padding: "30px", borderRadius: "16px", color: "#FFFFFF", cursor: "pointer", boxShadow: "0 10px 20px rgba(245,158,11,0.2)", transition: "transform 0.2s" }}
             onMouseEnter={(e) => e.currentTarget.style.transform = "translateY(-4px)"}
@@ -81,13 +94,6 @@ function Dashboard({ setActiveView, items }) {
           >
             <div style={{ fontSize: "24px", fontWeight: 800, marginBottom: "8px" }}>📊 Transactions & History</div>
             <p style={{ fontSize: "14px", opacity: 0.9, margin: 0 }}>View past bills, analyze sales reports, and track transaction logs.</p>
-          </div>
-
-          <div 
-            style={{ background: "linear-gradient(135deg, #64748B 100%, #475569 0%)", padding: "30px", borderRadius: "16px", color: "#FFFFFF", cursor: "pointer", boxShadow: "0 10px 20px rgba(100,116,139,0.2)" }}
-          >
-            <div style={{ fontSize: "24px", fontWeight: 800, marginBottom: "8px" }}>⚙️ Settings & Printer</div>
-            <p style={{ fontSize: "14px", opacity: 0.9, margin: 0 }}>Configure thermal printer settings, company details, and database backups.</p>
           </div>
 
         </div>
@@ -108,15 +114,24 @@ function Transactions({ setActiveView }) {
 }
 
 // ==========================================
-// 2. ප්‍රධාන App Component (Router පාලනය)
+// 2. ප්‍රධාන App Component (Router)
 // ==========================================
 export default function App() {
-  const [activeView, setActiveView] = useState("dashboard"); // "dashboard", "pos", "items", "transactions"
-  const [items, setItems] = useState(INITIAL_PRODUCTS); // සියලුම භාණ්ඩ ගබඩා කරන State එක
+  const [activeView, setActiveView] = useState("dashboard"); 
+  const [items, setItems] = useState(INITIAL_PRODUCTS); 
+  const [categories, setCategories] = useState(INITIAL_CATEGORIES);
+  const [companies, setCompanies] = useState(INITIAL_COMPANIES);
 
   return (
     <div>
-      {activeView === "dashboard" && <Dashboard setActiveView={setActiveView} items={items} />}
+      {activeView === "dashboard" && (
+        <Dashboard 
+          setActiveView={setActiveView} 
+          items={items} 
+          categories={categories} 
+          companies={companies} 
+        />
+      )}
       
       {activeView === "pos" && (
         <div>
@@ -132,7 +147,26 @@ export default function App() {
         </div>
       )}
 
-      {activeView === "items" && <ItemManagement setActiveView={setActiveView} items={items} setItems={setItems} />}
+      {activeView === "items" && (
+        <ItemManagement 
+          setActiveView={setActiveView} 
+          items={items} 
+          setItems={setItems} 
+          categories={categories} 
+          companies={companies} 
+        />
+      )}
+
+      {activeView === "categories-brands" && (
+        <CategoryBrandManager 
+          setActiveView={setActiveView} 
+          categories={categories} 
+          setCategories={setCategories} 
+          companies={companies} 
+          setCompanies={setCompanies} 
+        />
+      )}
+
       {activeView === "transactions" && <Transactions setActiveView={setActiveView} />}
     </div>
   );
