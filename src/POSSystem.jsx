@@ -30,9 +30,9 @@ const btnBaseStyle = {
 };
 
 // ==========================================
-// 1. වෙන් කරන ලද ItemRow Component එක
+// 1. ItemRow Component (වම් පස ලැයිස්තුව සඳහා)
 // ==========================================
-const ItemRow = ({ product, inBill, entry, changeQty, setQty, setDiscount }) => {
+const ItemRow = ({ product, inBill, entry, changeQty, setQty, setDiscount, removeItem }) => {
   const active = entry.qty > 0;
   const lineTotalValue = round2(product.price * entry.qty * (1 - (entry.discountPercent || 0) / 100));
 
@@ -41,7 +41,7 @@ const ItemRow = ({ product, inBill, entry, changeQty, setQty, setDiscount }) => 
       className="item-card"
       style={{
         display: "flex", flexDirection: "column", gap: "10px", padding: "16px",
-        background: active ? "#EEF2FF" : "#FFFFFF", // Active නම් ළා නිල් පසුබිමක්
+        background: active ? "#EEF2FF" : "#FFFFFF", 
         border: active ? "2px solid #4F46E5" : "1px solid #E2E8F0", 
         borderRadius: "12px",
       }}
@@ -71,6 +71,17 @@ const ItemRow = ({ product, inBill, entry, changeQty, setQty, setDiscount }) => 
             style={{ width: "50px", textAlign: "center", padding: "8px 4px", fontSize: "15px", fontWeight: 600, fontFamily: "'Courier New', monospace", border: "1px solid #CBD5E1", borderRadius: "8px", color: "#1E293B", outline: "none", background: "#FFFFFF" }}
           />
           <button onClick={() => changeQty(product, 1)} style={{ ...btnBaseStyle, background: "#4F46E5", color: "#FFFFFF", boxShadow: "0 2px 4px rgba(79,70,229,0.3)" }}>+</button>
+
+          {/* In Bill කොටසේ පමණක් පෙන්වන Remove Button එක */}
+          {inBill && (
+            <button 
+              onClick={() => removeItem(product.id)}
+              title="Remove item"
+              style={{ background: "#FEE2E2", color: "#DC2626", border: "none", width: "32px", height: "32px", borderRadius: "8px", cursor: "pointer", fontWeight: 800, fontSize: "16px", display: "flex", alignItems: "center", justifyContent: "center", marginLeft: "4px" }}
+            >
+              &times;
+            </button>
+          )}
         </div>
       </div>
 
@@ -112,15 +123,12 @@ export default function POSSystem() {
 
   const getEntry = (product) => cart[product.id] || { product, qty: 0, discountPercent: 0 };
 
+  // Quantity එක වෙනස් කිරීම (0 වුණත් කාර්ට් එකෙන් අයින් වන්නේ නැත)
   const setQty = (product, qty) => {
     const clean = round2(Math.max(0, Math.min(999, parseFloat(qty))) || 0);
     setCart((prev) => {
       const next = { ...prev };
-      if (!clean || clean <= 0) {
-        delete next[product.id];
-      } else {
-        next[product.id] = { ...getEntry(product), qty: clean };
-      }
+      next[product.id] = { ...getEntry(product), qty: clean };
       return next;
     });
   };
@@ -128,6 +136,15 @@ export default function POSSystem() {
   const changeQty = (product, delta) => {
     const current = getEntry(product).qty;
     setQty(product, current + delta);
+  };
+
+  // Remove Button එක ක්ලික් කළහොත් පමණක් අයිතමය සම්පූර්ණයෙන්ම ඉවත් වේ
+  const removeItem = (productId) => {
+    setCart((prev) => {
+      const next = { ...prev };
+      delete next[productId];
+      return next;
+    });
   };
 
   const setDiscount = (product, pct) => {
@@ -141,7 +158,6 @@ export default function POSSystem() {
 
   const lineTotal = (line) => round2(line.product.price * line.qty * (1 - (line.discountPercent || 0) / 100));
   const total = round2(cartItems.reduce((sum, l) => sum + lineTotal(l), 0));
-  // const itemCount = cartItems.reduce((sum, l) => sum + l.qty, 0);
   const itemCount = cartItems.length;
   const balance = round2((amountPaid || 0) - total);
 
@@ -153,7 +169,6 @@ export default function POSSystem() {
   return (
     <div style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", background: "#F4F7FE", minHeight: "100vh", padding: "30px", boxSizing: "border-box" }}>
       
-      {/* මෙහි maxWidth ඉවත් කර width: "100%" යොදා ඇත */}
       <div style={{ display: "grid", gridTemplateColumns: "1.6fr 1fr", gap: "30px", width: "100%", margin: "0 auto", alignItems: "start" }}>
         
         {/* වම් පස: Search & Results */}
@@ -182,7 +197,7 @@ export default function POSSystem() {
               <div style={{ fontSize: "13px", fontWeight: 700, color: "#4F46E5", marginBottom: "12px", textTransform: "uppercase", letterSpacing: "1px" }}>★ In Your Bill</div>
               <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                 {cartItems.map((line) => (
-                  <ItemRow key={line.product.id} product={line.product} inBill={true} entry={line} changeQty={changeQty} setQty={setQty} setDiscount={setDiscount} />
+                  <ItemRow key={line.product.id} product={line.product} inBill={true} entry={line} changeQty={changeQty} setQty={setQty} setDiscount={setDiscount} removeItem={removeItem} />
                 ))}
               </div>
             </div>
@@ -193,25 +208,20 @@ export default function POSSystem() {
               {cartItems.length > 0 && <div style={{ fontSize: "13px", fontWeight: 700, color: "#64748B", marginBottom: "12px", textTransform: "uppercase", letterSpacing: "1px", marginTop: "24px" }}>Search Results</div>}
               <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                 {extraResults.map((product) => (
-                  <ItemRow key={product.id} product={product} inBill={false} entry={getEntry(product)} changeQty={changeQty} setQty={setQty} setDiscount={setDiscount} />
+                  <ItemRow key={product.id} product={product} inBill={false} entry={getEntry(product)} changeQty={changeQty} setQty={setQty} setDiscount={setDiscount} removeItem={removeItem} />
                 ))}
               </div>
             </div>
           )}
         </div>
+
         {/* දකුණු පස: Bill Preview */}
-        
         <div id="pos-bill-print" style={{ background: "#FFFFFF", border: "1px solid #E2E8F0", borderRadius: "16px", padding: "28px", position: "sticky", top: "30px", boxShadow: "0 10px 30px rgba(0,0,0,0.03)" }}>
           
-          {/* බිල්පතේ ඉහළ කොටස (Company Info & Bill Details) */}
           <div style={{ textAlign: "center", borderBottom: "2px dashed #E2E8F0", paddingBottom: "16px", marginBottom: "16px" }}>
-            
-            {/* ආයතනයේ නම */}
             <h2 style={{ fontSize: "22px", fontWeight: 900, color: "#0F172A", margin: "0 0 4px 0", textTransform: "uppercase", letterSpacing: "1px" }}>
               YOUR COMPANY NAME
             </h2>
-            
-            {/* ලිපිනය සහ දුරකථන අංකය */}
             <p style={{ fontSize: "13px", color: "#475569", margin: "0 0 2px 0", fontWeight: 500 }}>
               123, Main Street, Colombo 01
             </p>
@@ -219,7 +229,6 @@ export default function POSSystem() {
               Tel: 011-2345678 / 077-1234567
             </p>
             
-            {/* දිනය, වේලාව සහ බිල්පත් අංකය (Courier New Font එකෙන්) */}
             <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", color: "#64748B", fontWeight: 600, fontFamily: "'Courier New', monospace" }}>
               <span>Date: {new Date().toLocaleDateString()}</span>
               <span>Time: {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
@@ -233,16 +242,15 @@ export default function POSSystem() {
           {cartItems.length === 0 ? (
             <div style={{ fontSize: "14px", fontWeight: 500, color: "#94A3B8", padding: "40px 0", textAlign: "center" }}>Cart is empty</div>
           ) : (
-            /* වෙනස්කම 1: overflowY: "scroll" යොදා Scrollbar එක ස්ථාවර කර ඇත */
-              <div className="print-expand" style={{ display: "flex", flexDirection: "column", gap: "12px", marginBottom: "20px", maxHeight: "40vh", overflowY: "scroll", paddingRight: "8px" }}>              {cartItems.map((line) => {
+            <div className="print-expand" style={{ display: "flex", flexDirection: "column", gap: "12px", marginBottom: "20px", maxHeight: "40vh", overflowY: "scroll", paddingRight: "8px" }}>
+              {cartItems.map((line) => {
                 const hasDiscount = (line.discountPercent || 0) > 0;
                 const originalPrice = line.product.price;
                 const discountedUnitPrice = originalPrice * (1 - (line.discountPercent || 0) / 100);
 
                 return (
-                  <div key={line.product.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "12px", borderBottom: "1px dashed #F1F5F9", paddingBottom: "10px" }}>
+                  <div key={line.product.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "10px", borderBottom: "1px dashed #F1F5F9", paddingBottom: "10px" }}>
                     
-                    {/* වම් පස: භාණ්ඩයේ නම සහ ගණනය කිරීම */}
                     <div style={{ flex: 1, minWidth: 0, textAlign: "left" }}>
                       <div style={{ fontSize: "14px", fontWeight: 600, color: "#1E293B", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                         {line.product.name}
@@ -260,10 +268,21 @@ export default function POSSystem() {
                       </div>
                     </div>
 
-                    {/* දකුණු පස: මුළු මුදල (වෙනස්කම: whiteSpace: "nowrap" සහ පළල 125px කර ඇත) */}
-                    <div style={{ width: "125px", textAlign: "right", fontSize: "15px", fontWeight: 700, fontFamily: "'Courier New', monospace", color: "#1E293B", flexShrink: 0, whiteSpace: "nowrap" }}>
-                      {CURRENCY(lineTotal(line))}
+                    <div style={{ display: "flex", alignItems: "center", gap: "10px", flexShrink: 0 }}>
+                      <div style={{ textAlign: "right", fontSize: "15px", fontWeight: 700, fontFamily: "'Courier New', monospace", color: "#1E293B", whiteSpace: "nowrap" }}>
+                        {CURRENCY(lineTotal(line))}
+                      </div>
+
+                      <button 
+                        onClick={() => removeItem(line.product.id)}
+                        className="no-print"
+                        title="Remove item"
+                        style={{ background: "#FEE2E2", color: "#DC2626", border: "none", width: "26px", height: "26px", borderRadius: "6px", cursor: "pointer", fontWeight: 800, fontSize: "14px", display: "flex", alignItems: "center", justifyContent: "center" }}
+                      >
+                        &times;
+                      </button>
                     </div>
+
                   </div>
                 );
               })}
