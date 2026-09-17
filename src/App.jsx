@@ -3,6 +3,7 @@ import POSSystem from "./POSSystem";
 import ItemManagement from "./ItemManagement"; 
 import CategoryManager from "./CategoryManager"; 
 import CompanyManager from "./CompanyManager"; 
+import Transactions from "./Transactions"; // Transactions පිටුව import කර ඇත
 import "./POSSystem.css"; 
 
 const INITIAL_PRODUCTS = [
@@ -24,8 +25,9 @@ const INITIAL_COMPANIES = ["Araliya", "Marina", "Local", "Dilmah", "Anchor", "CB
 // ==========================================
 // 1. Dashboard Component
 // ==========================================
-function Dashboard({ setActiveView, items, categories, companies }) {
+function Dashboard({ setActiveView, items, categories, companies, transactions }) {
   const totalStockValue = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const totalSalesRevenue = transactions.reduce((sum, tx) => sum + tx.total, 0);
 
   return (
     <div style={{ fontFamily: "'Inter', sans-serif", background: "#F4F7FE", minHeight: "100vh", padding: "40px", boxSizing: "border-box" }}>
@@ -40,12 +42,12 @@ function Dashboard({ setActiveView, items, categories, companies }) {
         {/* Quick Stats Cards */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "20px", marginBottom: "40px" }}>
           <div style={{ background: "#FFFFFF", padding: "24px", borderRadius: "16px", border: "1px solid #E2E8F0", boxShadow: "0 4px 6px -1px rgba(0,0,0,0.02)" }}>
-            <div style={{ fontSize: "14px", fontWeight: 600, color: "#64748B" }}>Total Store Items</div>
-            <div style={{ fontSize: "28px", fontWeight: 800, color: "#10B981", marginTop: "8px", fontFamily: "'Courier New', monospace" }}>{items.length} Types</div>
+            <div style={{ fontSize: "14px", fontWeight: 600, color: "#64748B" }}>Total Sales Revenue</div>
+            <div style={{ fontSize: "28px", fontWeight: 800, color: "#10B981", marginTop: "8px", fontFamily: "'Courier New', monospace" }}>Rs. {totalSalesRevenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}</div>
           </div>
           <div style={{ background: "#FFFFFF", padding: "24px", borderRadius: "16px", border: "1px solid #E2E8F0", boxShadow: "0 4px 6px -1px rgba(0,0,0,0.02)" }}>
-            <div style={{ fontSize: "14px", fontWeight: 600, color: "#64748B" }}>Inventory Retail Value</div>
-            <div style={{ fontSize: "28px", fontWeight: 800, color: "#4F46E5", marginTop: "8px", fontFamily: "'Courier New', monospace" }}>Rs. {totalStockValue.toLocaleString()}</div>
+            <div style={{ fontSize: "14px", fontWeight: 600, color: "#64748B" }}>Total Bills Issued</div>
+            <div style={{ fontSize: "28px", fontWeight: 800, color: "#4F46E5", marginTop: "8px", fontFamily: "'Courier New', monospace" }}>{transactions.length} Bills</div>
           </div>
           <div style={{ background: "#FFFFFF", padding: "24px", borderRadius: "16px", border: "1px solid #E2E8F0", boxShadow: "0 4px 6px -1px rgba(0,0,0,0.02)" }}>
             <div style={{ fontSize: "14px", fontWeight: 600, color: "#64748B" }}>Categories & Brands</div>
@@ -114,16 +116,6 @@ function Dashboard({ setActiveView, items, categories, companies }) {
   );
 }
 
-// Transactions Placeholder
-function Transactions({ setActiveView }) {
-  return (
-    <div style={{ padding: "40px", fontFamily: "'Inter', sans-serif" }}>
-      <button onClick={() => setActiveView("dashboard")} style={{ padding: "10px 20px", background: "#4F46E5", color: "#fff", border: "none", borderRadius: "8px", cursor: "pointer", marginBottom: "20px" }}>← Back to Dashboard</button>
-      <h1>Transactions & Past Bills (Under Construction)</h1>
-    </div>
-  );
-}
-
 // ==========================================
 // 2. Main App Component (Router)
 // ==========================================
@@ -132,6 +124,7 @@ export default function App() {
   const [items, setItems] = useState(INITIAL_PRODUCTS); 
   const [categories, setCategories] = useState(INITIAL_CATEGORIES);
   const [companies, setCompanies] = useState(INITIAL_COMPANIES);
+  const [transactions, setTransactions] = useState([]); // බිල්පත් ගනුදෙනු ඉතිහාසය ගබඩා කිරීම සඳහා
 
   return (
     <div>
@@ -141,6 +134,7 @@ export default function App() {
           items={items} 
           categories={categories} 
           companies={companies} 
+          transactions={transactions}
         />
       )}
       
@@ -154,7 +148,11 @@ export default function App() {
               ← Back to Dashboard
             </button>
           </div>
-          <POSSystem products={items} />
+          <POSSystem 
+            products={items} 
+            setTransactions={setTransactions} 
+            transactions={transactions} 
+          />
         </div>
       )}
 
@@ -184,7 +182,12 @@ export default function App() {
         />
       )}
 
-      {activeView === "transactions" && <Transactions setActiveView={setActiveView} />}
+      {activeView === "transactions" && (
+        <Transactions 
+          setActiveView={setActiveView} 
+          transactions={transactions} 
+        />
+      )}
     </div>
   );
 }

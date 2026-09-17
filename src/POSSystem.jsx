@@ -106,7 +106,7 @@ const ItemRow = ({ product, inBill, entry, changeQty, setQty, setDiscount, remov
 // ==========================================
 // 2. ප්‍රධාන POS Component එක
 // ==========================================
-export default function POSSystem() {
+export default function POSSystem({ setTransactions }) {
   const [query, setQuery] = useState("");
   const [cart, setCart] = useState({});
   const [amountPaid, setAmountPaid] = useState(0);
@@ -163,6 +163,21 @@ export default function POSSystem() {
 
   const handlePrint = () => {
     if (cartItems.length === 0) return;
+
+    // විකුණුම් දත්ත (Transactions) ඉතිහාසයට එකතු කිරීම
+    const newTransaction = {
+      id: Date.now(),
+      billNo: `#BIL-${Math.floor(1000 + Math.random() * 9000)}`,
+      date: new Date().toLocaleString(),
+      items: cartItems,
+      itemsCount: itemCount,
+      total: total
+    };
+
+    if (setTransactions) {
+      setTransactions(prev => [newTransaction, ...prev]);
+    }
+
     window.print();
   };
 
