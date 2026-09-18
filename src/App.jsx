@@ -3,7 +3,7 @@ import POSSystem from "./POSSystem";
 import ItemManagement from "./ItemManagement"; 
 import CategoryManager from "./CategoryManager"; 
 import CompanyManager from "./CompanyManager"; 
-import Transactions from "./Transactions"; // Transactions පිටුව import කර ඇත
+import Transactions from "./Transactions"; 
 import "./POSSystem.css"; 
 
 const INITIAL_PRODUCTS = [
@@ -23,90 +23,183 @@ const INITIAL_CATEGORIES = ["Groceries", "Vegetables", "Beverages", "Bakery", "D
 const INITIAL_COMPANIES = ["Araliya", "Marina", "Local", "Dilmah", "Anchor", "CBL", "Farm", "Crysbro", "Samaposha", "General"];
 
 // ==========================================
-// 1. Dashboard Component
+// 1. Professional World-Class Dashboard Component
 // ==========================================
 function Dashboard({ setActiveView, items, categories, companies, transactions }) {
   const totalStockValue = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const totalSalesRevenue = transactions.reduce((sum, tx) => sum + tx.total, 0);
 
   return (
-    <div style={{ fontFamily: "'Inter', sans-serif", background: "#F4F7FE", minHeight: "100vh", padding: "40px", boxSizing: "border-box" }}>
-      <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
+    <div style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", background: "#F1F5F9", minHeight: "100vh", padding: "35px 40px", boxSizing: "border-box" }}>
+      <div style={{ maxWidth: "1300px", margin: "0 auto" }}>
         
-        {/* Header */}
-        <div style={{ marginBottom: "30px" }}>
-          <h1 style={{ fontSize: "32px", fontWeight: 900, color: "#1E293B", margin: "0 0 8px 0" }}>Main Dashboard</h1>
-          <p style={{ fontSize: "15px", color: "#64748B", margin: 0, fontWeight: 500 }}>Welcome back! Choose an option below to manage your store.</p>
-        </div>
-
-        {/* Quick Stats Cards */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "20px", marginBottom: "40px" }}>
-          <div style={{ background: "#FFFFFF", padding: "24px", borderRadius: "16px", border: "1px solid #E2E8F0", boxShadow: "0 4px 6px -1px rgba(0,0,0,0.02)" }}>
-            <div style={{ fontSize: "14px", fontWeight: 600, color: "#64748B" }}>Total Sales Revenue</div>
-            <div style={{ fontSize: "28px", fontWeight: 800, color: "#10B981", marginTop: "8px", fontFamily: "'Courier New', monospace" }}>Rs. {totalSalesRevenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}</div>
+        {/* Top Header Section */}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "35px", background: "#FFFFFF", padding: "24px 32px", borderRadius: "20px", border: "1px solid #E2E8F0", boxShadow: "0 4px 20px rgba(0,0,0,0.03)" }}>
+          <div>
+            <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "4px" }}>
+              <span style={{ fontSize: "22px" }}>⚡</span>
+              <h1 style={{ fontSize: "26px", fontWeight: 900, color: "#0F172A", margin: 0, letterSpacing: "-0.025em" }}>Apex POS Terminal</h1>
+              <span style={{ fontSize: "11px", fontWeight: 800, background: "#DCFCE7", color: "#15803D", padding: "4px 10px", borderRadius: "20px", textTransform: "uppercase", letterSpacing: "0.5px" }}>Online</span>
+            </div>
+            <p style={{ fontSize: "14px", color: "#64748B", margin: 0, fontWeight: 500 }}>Enterprise Store Management & Point of Sale System</p>
           </div>
-          <div style={{ background: "#FFFFFF", padding: "24px", borderRadius: "16px", border: "1px solid #E2E8F0", boxShadow: "0 4px 6px -1px rgba(0,0,0,0.02)" }}>
-            <div style={{ fontSize: "14px", fontWeight: 600, color: "#64748B" }}>Total Bills Issued</div>
-            <div style={{ fontSize: "28px", fontWeight: 800, color: "#4F46E5", marginTop: "8px", fontFamily: "'Courier New', monospace" }}>{transactions.length} Bills</div>
-          </div>
-          <div style={{ background: "#FFFFFF", padding: "24px", borderRadius: "16px", border: "1px solid #E2E8F0", boxShadow: "0 4px 6px -1px rgba(0,0,0,0.02)" }}>
-            <div style={{ fontSize: "14px", fontWeight: 600, color: "#64748B" }}>Categories & Brands</div>
-            <div style={{ fontSize: "20px", fontWeight: 800, color: "#F59E0B", marginTop: "12px" }}>{categories.length} Cats / {companies.length} Brands</div>
+          <div style={{ textAlign: "right" }}>
+            <div style={{ fontSize: "14px", fontWeight: 700, color: "#0F172A", fontFamily: "'Courier New', monospace" }}>
+              {new Date().toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })}
+            </div>
+            <div style={{ fontSize: "12px", color: "#64748B", fontWeight: 600, marginTop: "2px" }}>Store Location: Main Branch #01</div>
           </div>
         </div>
 
-        {/* Navigation Action Cards */}
-        <h2 style={{ fontSize: "20px", fontWeight: 800, color: "#1E293B", marginBottom: "20px" }}>Quick Navigation</h2>
+        {/* Executive KPI Summary Cards */}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "24px", marginBottom: "40px" }}>
+          
+          <div style={{ background: "linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%)", padding: "26px", borderRadius: "20px", border: "1px solid #E2E8F0", boxShadow: "0 10px 25px rgba(0,0,0,0.02)", position: "relative", overflow: "hidden" }}>
+            <div style={{ position: "absolute", top: "20px", right: "20px", width: "42px", height: "42px", background: "#DCFCE7", color: "#16A34A", borderRadius: "12px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "20px" }}>💰</div>
+            <div style={{ fontSize: "13px", fontWeight: 700, color: "#64748B", textTransform: "uppercase", letterSpacing: "0.5px" }}>Total Sales Revenue</div>
+            <div style={{ fontSize: "30px", fontWeight: 900, color: "#0F172A", marginTop: "12px", fontFamily: "'Courier New', monospace" }}>
+              Rs. {totalSalesRevenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+            </div>
+            <div style={{ fontSize: "12px", fontWeight: 600, color: "#16A34A", marginTop: "8px" }}>↑ Real-time tracking from POS</div>
+          </div>
+
+          <div style={{ background: "linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%)", padding: "26px", borderRadius: "20px", border: "1px solid #E2E8F0", boxShadow: "0 10px 25px rgba(0,0,0,0.02)", position: "relative", overflow: "hidden" }}>
+            <div style={{ position: "absolute", top: "20px", right: "20px", width: "42px", height: "42px", background: "#EEF2FF", color: "#4F46E5", borderRadius: "12px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "20px" }}>🧾</div>
+            <div style={{ fontSize: "13px", fontWeight: 700, color: "#64748B", textTransform: "uppercase", letterSpacing: "0.5px" }}>Total Bills Issued</div>
+            <div style={{ fontSize: "30px", fontWeight: 900, color: "#0F172A", marginTop: "12px", fontFamily: "'Courier New', monospace" }}>
+              {transactions.length} <span style={{ fontSize: "16px", color: "#64748B", fontWeight: 600 }}>Bills</span>
+            </div>
+            <div style={{ fontSize: "12px", fontWeight: 600, color: "#4F46E5", marginTop: "8px" }}>Registered transactions</div>
+          </div>
+
+          <div style={{ background: "linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%)", padding: "26px", borderRadius: "20px", border: "1px solid #E2E8F0", boxShadow: "0 10px 25px rgba(0,0,0,0.02)", position: "relative", overflow: "hidden" }}>
+            <div style={{ position: "absolute", top: "20px", right: "20px", width: "42px", height: "42px", background: "#FEF3C7", color: "#D97706", borderRadius: "12px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "20px" }}>📦</div>
+            <div style={{ fontSize: "13px", fontWeight: 700, color: "#64748B", textTransform: "uppercase", letterSpacing: "0.5px" }}>Inventory & Database</div>
+            <div style={{ fontSize: "24px", fontWeight: 900, color: "#0F172A", marginTop: "12px" }}>
+              {items.length} <span style={{ fontSize: "14px", fontWeight: 600, color: "#64748B" }}>Items</span> &middot; {categories.length} <span style={{ fontSize: "14px", fontWeight: 600, color: "#64748B" }}>Cats</span>
+            </div>
+            <div style={{ fontSize: "12px", fontWeight: 600, color: "#D97706", marginTop: "8px" }}>Active stock varieties</div>
+          </div>
+
+        </div>
+
+        {/* Navigation Control Hub */}
+        <div style={{ marginBottom: "20px" }}>
+          <h2 style={{ fontSize: "18px", fontWeight: 800, color: "#0F172A", margin: "0 0 4px 0", letterSpacing: "-0.01em" }}>Management & Operations Hub</h2>
+          <p style={{ fontSize: "14px", color: "#64748B", margin: 0 }}>Select a module below to proceed with store activities.</p>
+        </div>
+
         <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "24px" }}>
           
+          {/* POS Counter Card */}
           <div 
             onClick={() => setActiveView("pos")}
-            style={{ background: "linear-gradient(135deg, #4F46E5 0%, #3B82F6 100%)", padding: "26px", borderRadius: "16px", color: "#FFFFFF", cursor: "pointer", boxShadow: "0 10px 20px rgba(79,70,229,0.2)", transition: "transform 0.2s" }}
-            onMouseEnter={(e) => e.currentTarget.style.transform = "translateY(-4px)"}
-            onMouseLeave={(e) => e.currentTarget.style.transform = "translateY(0)"}
+            style={{ 
+              background: "linear-gradient(135deg, #4F46E5 0%, #3B82F6 100%)", 
+              padding: "30px", borderRadius: "20px", color: "#FFFFFF", cursor: "pointer", 
+              boxShadow: "0 10px 25px rgba(79,70,229,0.25)", transition: "all 0.25s ease",
+              display: "flex", flexDirection: "column", justifyContent: "space-between", minHeight: "140px"
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-6px)"; e.currentTarget.style.boxShadow = "0 15px 35px rgba(79,70,229,0.35)"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 10px 25px rgba(79,70,229,0.25)"; }}
           >
-            <div style={{ fontSize: "22px", fontWeight: 800, marginBottom: "6px" }}>🛒 POS Counter & Billing</div>
-            <p style={{ fontSize: "14px", opacity: 0.9, margin: 0 }}>Open sales counter, search items, apply discounts, and print bills.</p>
+            <div>
+              <div style={{ fontSize: "32px", marginBottom: "12px" }}>🛒</div>
+              <div style={{ fontSize: "22px", fontWeight: 900, marginBottom: "6px", letterSpacing: "-0.01em" }}>POS Counter & Billing</div>
+              <p style={{ fontSize: "14px", opacity: 0.9, margin: 0, lineHeight: "1.5", fontWeight: 500 }}>Open the lightning-fast sales counter, scan items, apply custom discounts, and print bills instantly.</p>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "13px", fontWeight: 700, marginTop: "20px", opacity: 0.95 }}>
+              Launch Counter &rarr;
+            </div>
           </div>
 
+          {/* Item Management Card */}
           <div 
             onClick={() => setActiveView("items")}
-            style={{ background: "linear-gradient(135deg, #10B981 0%, #059669 100%)", padding: "26px", borderRadius: "16px", color: "#FFFFFF", cursor: "pointer", boxShadow: "0 10px 20px rgba(16,185,129,0.2)", transition: "transform 0.2s" }}
-            onMouseEnter={(e) => e.currentTarget.style.transform = "translateY(-4px)"}
-            onMouseLeave={(e) => e.currentTarget.style.transform = "translateY(0)"}
+            style={{ 
+              background: "linear-gradient(135deg, #059669 0%, #10B981 100%)", 
+              padding: "30px", borderRadius: "20px", color: "#FFFFFF", cursor: "pointer", 
+              boxShadow: "0 10px 25px rgba(16,185,129,0.25)", transition: "all 0.25s ease",
+              display: "flex", flexDirection: "column", justifyContent: "space-between", minHeight: "140px"
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-6px)"; e.currentTarget.style.boxShadow = "0 15px 35px rgba(16,185,129,0.35)"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 10px 25px rgba(16,185,129,0.25)"; }}
           >
-            <div style={{ fontSize: "22px", fontWeight: 800, marginBottom: "6px" }}>📦 Item Management</div>
-            <p style={{ fontSize: "14px", opacity: 0.9, margin: 0 }}>Add new items, update prices, manage categories and stock levels.</p>
+            <div>
+              <div style={{ fontSize: "32px", marginBottom: "12px" }}>📦</div>
+              <div style={{ fontSize: "22px", fontWeight: 900, marginBottom: "6px", letterSpacing: "-0.01em" }}>Item & Inventory Management</div>
+              <p style={{ fontSize: "14px", opacity: 0.9, margin: 0, lineHeight: "1.5", fontWeight: 500 }}>Add new items, monitor stock quantities, update retail/buying prices, and manage inventory seamlessly.</p>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "13px", fontWeight: 700, marginTop: "20px", opacity: 0.95 }}>
+              Manage Inventory &rarr;
+            </div>
           </div>
 
+          {/* Category Management Card */}
           <div 
             onClick={() => setActiveView("categories")}
-            style={{ background: "linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%)", padding: "26px", borderRadius: "16px", color: "#FFFFFF", cursor: "pointer", boxShadow: "0 10px 20px rgba(139,92,246,0.2)", transition: "transform 0.2s" }}
-            onMouseEnter={(e) => e.currentTarget.style.transform = "translateY(-4px)"}
-            onMouseLeave={(e) => e.currentTarget.style.transform = "translateY(0)"}
+            style={{ 
+              background: "linear-gradient(135deg, #7C3AED 0%, #8B5CF6 100%)", 
+              padding: "30px", borderRadius: "20px", color: "#FFFFFF", cursor: "pointer", 
+              boxShadow: "0 10px 25px rgba(139,92,246,0.25)", transition: "all 0.25s ease",
+              display: "flex", flexDirection: "column", justifyContent: "space-between", minHeight: "140px"
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-6px)"; e.currentTarget.style.boxShadow = "0 15px 35px rgba(139,92,246,0.35)"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 10px 25px rgba(139,92,246,0.25)"; }}
           >
-            <div style={{ fontSize: "22px", fontWeight: 800, marginBottom: "6px" }}>📂 Category Management</div>
-            <p style={{ fontSize: "14px", opacity: 0.9, margin: 0 }}>Manage store categories, view IDs, edit or delete categories.</p>
+            <div>
+              <div style={{ fontSize: "32px", marginBottom: "12px" }}>📂</div>
+              <div style={{ fontSize: "22px", fontWeight: 900, marginBottom: "6px", letterSpacing: "-0.01em" }}>Category Hub</div>
+              <p style={{ fontSize: "14px", opacity: 0.9, margin: 0, lineHeight: "1.5", fontWeight: 500 }}>Organize store items into structured categories with custom IDs, real-time search, and editing tools.</p>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "13px", fontWeight: 700, marginTop: "20px", opacity: 0.95 }}>
+              Manage Categories &rarr;
+            </div>
           </div>
 
+          {/* Company / Brand Management Card */}
           <div 
             onClick={() => setActiveView("companies")}
-            style={{ background: "linear-gradient(135deg, #0EA5E9 0%, #0284C7 100%)", padding: "26px", borderRadius: "16px", color: "#FFFFFF", cursor: "pointer", boxShadow: "0 10px 20px rgba(14,165,233,0.2)", transition: "transform 0.2s" }}
-            onMouseEnter={(e) => e.currentTarget.style.transform = "translateY(-4px)"}
-            onMouseLeave={(e) => e.currentTarget.style.transform = "translateY(0)"}
+            style={{ 
+              background: "linear-gradient(135deg, #0284C7 100%, #0EA5E9 0%)", 
+              padding: "30px", borderRadius: "20px", color: "#FFFFFF", cursor: "pointer", 
+              boxShadow: "0 10px 25px rgba(14,165,233,0.25)", transition: "all 0.25s ease",
+              display: "flex", flexDirection: "column", justifyContent: "space-between", minHeight: "140px"
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-6px)"; e.currentTarget.style.boxShadow = "0 15px 35px rgba(14,165,233,0.35)"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 10px 25px rgba(14,165,233,0.25)"; }}
           >
-            <div style={{ fontSize: "22px", fontWeight: 800, marginBottom: "6px" }}>🏢 Brand & Company Management</div>
-            <p style={{ fontSize: "14px", opacity: 0.9, margin: 0 }}>Manage brands/companies, view IDs, edit or delete company records.</p>
+            <div>
+              <div style={{ fontSize: "32px", marginBottom: "12px" }}>🏢</div>
+              <div style={{ fontSize: "22px", fontWeight: 900, marginBottom: "6px", letterSpacing: "-0.01em" }}>Brand & Company Hub</div>
+              <p style={{ fontSize: "14px", opacity: 0.9, margin: 0, lineHeight: "1.5", fontWeight: 500 }}>Register manufacturer brands, track supplier companies, and keep your inventory records fully updated.</p>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "13px", fontWeight: 700, marginTop: "20px", opacity: 0.95 }}>
+              Manage Brands &rarr;
+            </div>
           </div>
 
+          {/* Transactions & History Card (Full Width Span option or Grid item) */}
           <div 
             onClick={() => setActiveView("transactions")}
-            style={{ background: "linear-gradient(135deg, #F59E0B 0%, #D97706 100%)", padding: "26px", borderRadius: "16px", color: "#FFFFFF", cursor: "pointer", boxShadow: "0 10px 20px rgba(245,158,11,0.2)", transition: "transform 0.2s" }}
-            onMouseEnter={(e) => e.currentTarget.style.transform = "translateY(-4px)"}
-            onMouseLeave={(e) => e.currentTarget.style.transform = "translateY(0)"}
+            style={{ 
+              gridColumn: "span 2",
+              background: "linear-gradient(135deg, #D97706 0%, #F59E0B 100%)", 
+              padding: "30px", borderRadius: "20px", color: "#FFFFFF", cursor: "pointer", 
+              boxShadow: "0 10px 25px rgba(245,158,11,0.25)", transition: "all 0.25s ease",
+              display: "flex", justifyContent: "space-between", alignItems: "center"
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-4px)"; e.currentTarget.style.boxShadow = "0 15px 35px rgba(245,158,11,0.35)"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 10px 25px rgba(245,158,11,0.25)"; }}
           >
-            <div style={{ fontSize: "22px", fontWeight: 800, marginBottom: "6px" }}>📊 Transactions & History</div>
-            <p style={{ fontSize: "14px", opacity: 0.9, margin: 0 }}>View past bills, analyze sales reports, and track transaction logs.</p>
+            <div style={{ maxWidth: "70%" }}>
+              <div style={{ fontSize: "28px", marginBottom: "8px" }}>📊</div>
+              <div style={{ fontSize: "22px", fontWeight: 900, marginBottom: "6px", letterSpacing: "-0.01em" }}>Transactions & Sales History Auditing</div>
+              <p style={{ fontSize: "14px", opacity: 0.9, margin: 0, lineHeight: "1.5", fontWeight: 500 }}>Access past bills, review revenue metrics, inspect sales item logs, and reprint receipts instantly.</p>
+            </div>
+            <div style={{ background: "rgba(255,255,255,0.2)", padding: "12px 20px", borderRadius: "12px", fontSize: "14px", fontWeight: 800, backdropFilter: "blur(5px)" }}>
+              View Sales Logs &rarr;
+            </div>
           </div>
 
         </div>
@@ -124,7 +217,7 @@ export default function App() {
   const [items, setItems] = useState(INITIAL_PRODUCTS); 
   const [categories, setCategories] = useState(INITIAL_CATEGORIES);
   const [companies, setCompanies] = useState(INITIAL_COMPANIES);
-  const [transactions, setTransactions] = useState([]); // බිල්පත් ගනුදෙනු ඉතිහාසය ගබඩා කිරීම සඳහා
+  const [transactions, setTransactions] = useState([]);
 
   return (
     <div>
